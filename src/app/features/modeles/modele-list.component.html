@@ -1,0 +1,98 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2><i class="pi pi-cog"></i>&nbsp;Modeles ML</h2>
+  </div>
+
+  <p-toolbar styleClass="mb-3">
+    <ng-template pTemplate="start">
+      <button pButton type="button" label="Nouveau modele" icon="pi pi-plus"
+              class="p-button-success" (click)="openCreate()"></button>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Rechercher..." (input)="onGlobalFilter(dt, $event)" />
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="modeles" [loading]="loading" [paginator]="true" [rows]="10"
+           [rowsPerPageOptions]="[5, 10, 25]" [globalFilterFields]="['nom', 'algorithme', 'type', 'version']"
+           sortField="nom" [sortOrder]="1" responsiveLayout="scroll"
+           styleClass="p-datatable-striped">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+        <th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon></th>
+        <th>Algorithme</th>
+        <th pSortableColumn="version">Version <p-sortIcon field="version"></p-sortIcon></th>
+        <th pSortableColumn="dateCreation">Date de creation <p-sortIcon field="dateCreation"></p-sortIcon></th>
+        <th>Experimentations</th>
+        <th style="width: 8rem">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-modele>
+      <tr>
+        <td>{{ modele.nom }}</td>
+        <td><p-tag [value]="modele.type" severity="info"></p-tag></td>
+        <td>{{ modele.algorithme }}</td>
+        <td>{{ modele.version }}</td>
+        <td>{{ modele.dateCreation }}</td>
+        <td>{{ modele.nombreExperimentations ?? 0 }}</td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                  (click)="openEdit(modele)" pTooltip="Modifier"></button>
+          <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                  (click)="confirmDelete(modele)" pTooltip="Supprimer"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="7">Aucun modele trouve.</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '32rem' }"
+          [header]="dialogMode === 'create' ? 'Nouveau modele ML' : 'Modifier le modele ML'"
+          (onHide)="hideDialog()">
+  <form [formGroup]="form" class="p-fluid">
+    <div class="field">
+      <label for="nom">Nom *</label>
+      <input pInputText id="nom" formControlName="nom" />
+      <small class="field-error" *ngIf="isInvalid('nom')">Le nom est obligatoire.</small>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-6">
+        <label for="type">Type *</label>
+        <p-dropdown inputId="type" formControlName="type" [options]="typeOptions"
+                    placeholder="Choisir..."></p-dropdown>
+        <small class="field-error" *ngIf="isInvalid('type')">Le type est obligatoire.</small>
+      </div>
+      <div class="field col-6">
+        <label for="version">Version *</label>
+        <input pInputText id="version" formControlName="version" placeholder="ex : v1.0" />
+        <small class="field-error" *ngIf="isInvalid('version')">La version est obligatoire.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="algorithme">Algorithme *</label>
+      <input pInputText id="algorithme" formControlName="algorithme" placeholder="ex : Random Forest" />
+      <small class="field-error" *ngIf="isInvalid('algorithme')">L'algorithme est obligatoire.</small>
+    </div>
+
+    <div class="field">
+      <label for="dateCreation">Date de creation *</label>
+      <p-calendar inputId="dateCreation" formControlName="dateCreation" dateFormat="yy-mm-dd"
+                  [showIcon]="true"></p-calendar>
+      <small class="field-error" *ngIf="isInvalid('dateCreation')">La date est obligatoire.</small>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton label="Enregistrer" icon="pi pi-check" [loading]="submitting" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
