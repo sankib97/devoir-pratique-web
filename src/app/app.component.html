@@ -1,0 +1,12 @@
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '30rem' }"></p-confirmDialog>
+
+<p-menubar [model]="menuItems">
+  <ng-template pTemplate="start">
+    <span class="app-title">
+      <i class="pi pi-sitemap" style="margin-right: 0.5rem;"></i>{{ title }}
+    </span>
+  </ng-template>
+</p-menubar>
+
+<router-outlet></router-outlet>
