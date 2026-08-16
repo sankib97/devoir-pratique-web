@@ -1,0 +1,103 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2><i class="pi pi-database"></i>&nbsp;Datasets</h2>
+  </div>
+
+  <p-toolbar styleClass="mb-3">
+    <ng-template pTemplate="start">
+      <button pButton type="button" label="Nouveau dataset" icon="pi pi-plus"
+              class="p-button-success" (click)="openCreate()"></button>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Rechercher..." (input)="onGlobalFilter(dt, $event)" />
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="datasets" [loading]="loading" [paginator]="true" [rows]="10"
+           [rowsPerPageOptions]="[5, 10, 25]" [globalFilterFields]="['nom', 'source', 'format']"
+           sortField="nom" [sortOrder]="1" responsiveLayout="scroll"
+           styleClass="p-datatable-striped">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+        <th pSortableColumn="format">Format <p-sortIcon field="format"></p-sortIcon></th>
+        <th pSortableColumn="nombreObservations">Observations <p-sortIcon field="nombreObservations"></p-sortIcon></th>
+        <th>Source</th>
+        <th pSortableColumn="dateAjout">Date d'ajout <p-sortIcon field="dateAjout"></p-sortIcon></th>
+        <th>Experimentations</th>
+        <th style="width: 8rem">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-dataset>
+      <tr>
+        <td>{{ dataset.nom }}</td>
+        <td><p-tag [value]="dataset.format"></p-tag></td>
+        <td>{{ dataset.nombreObservations }}</td>
+        <td>{{ dataset.source || '-' }}</td>
+        <td>{{ dataset.dateAjout }}</td>
+        <td>{{ dataset.nombreExperimentations ?? 0 }}</td>
+        <td>
+          <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text"
+                  (click)="openEdit(dataset)" pTooltip="Modifier"></button>
+          <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                  (click)="confirmDelete(dataset)" pTooltip="Supprimer"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="7">Aucun dataset trouve.</td></tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '32rem' }"
+          [header]="dialogMode === 'create' ? 'Nouveau dataset' : 'Modifier le dataset'"
+          (onHide)="hideDialog()">
+  <form [formGroup]="form" class="p-fluid">
+    <div class="field">
+      <label for="nom">Nom *</label>
+      <input pInputText id="nom" formControlName="nom" />
+      <small class="field-error" *ngIf="isInvalid('nom')">Le nom est obligatoire.</small>
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea pInputTextarea id="description" formControlName="description" rows="3"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="source">Source</label>
+      <input pInputText id="source" formControlName="source" />
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col-6">
+        <label for="nombreObservations">Nombre d'observations *</label>
+        <p-inputNumber inputId="nombreObservations" formControlName="nombreObservations"
+                        [min]="0" [useGrouping]="false"></p-inputNumber>
+        <small class="field-error" *ngIf="isInvalid('nombreObservations')">Doit etre un nombre positif.</small>
+      </div>
+      <div class="field col-6">
+        <label for="format">Format *</label>
+        <p-dropdown inputId="format" formControlName="format" [options]="formatOptions"
+                    placeholder="Choisir..."></p-dropdown>
+        <small class="field-error" *ngIf="isInvalid('format')">Le format est obligatoire.</small>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="dateAjout">Date d'ajout *</label>
+      <p-calendar inputId="dateAjout" formControlName="dateAjout" dateFormat="yy-mm-dd"
+                  [showIcon]="true"></p-calendar>
+      <small class="field-error" *ngIf="isInvalid('dateAjout')">La date est obligatoire.</small>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Annuler" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton label="Enregistrer" icon="pi pi-check" [loading]="submitting" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
